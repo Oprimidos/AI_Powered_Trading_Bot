@@ -24,6 +24,7 @@ class RSIStrategy(TradingStrategy):
         # Apply smoothing to RSI
         row_df = pd.DataFrame([row])
 
+
         smoothed_rsi = row_df['rsi'].rolling(window=self.smoothing_period).mean().iloc[-1]
 
         if smoothed_rsi < 30:

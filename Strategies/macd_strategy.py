@@ -23,6 +23,7 @@ class MACDStrategy(TradingStrategy):
         """Labeling logic specific to RSI strategy."""
 
         # Convert the row (Series) to a DataFrame to apply rolling()
+
         row_df = pd.DataFrame([row])
 
         # Apply smoothing to RSI using rolling() on the DataFrame

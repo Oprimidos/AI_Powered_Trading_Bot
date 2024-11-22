@@ -6,7 +6,6 @@ def calculate_indicators(df):
     bb = ta.bbands(df['Close'], length=20)
     df = df.join(bb)
     
-
     # Calculate RSI
     df['rsi'] = ta.rsi(df['Close'], length=14)
 
@@ -19,9 +18,6 @@ def calculate_indicators(df):
     df['adx'] = adx['ADX_14']  # Average Directional Index
     df['di_plus'] = adx['DMP_14']  # Positive Directional Indicator
     df['di_minus'] = adx['DMN_14']  # Negative Directional Indicator
-
-
-
     
     df.dropna(inplace=True)
     return df

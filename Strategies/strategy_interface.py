@@ -12,7 +12,6 @@ class TradingStrategy(ABC):
         self.stop_loss = stop_loss  # Shared functionality, for example, stop loss
         self.smoothing_period = smoothing_period  # Smoothing period for indicators
         self.model = RandomForestClassifier(class_weight='balanced')  # Common model for all strategies
-        self.is_trained = False  # To track whether the model has been trained
 
     @abstractmethod
     def decide_action(self, row, df):
@@ -30,7 +29,7 @@ class TradingStrategy(ABC):
         This is implemented in the strategy class.
         """
         labels = []
-        for row in df.iterrows():
+        for index,row in df.iterrows():
             labels.append(label_logic(row))  # Apply the strategy's labeling logic
         df['Action'] = labels
         return df
@@ -49,4 +48,3 @@ class TradingStrategy(ABC):
 
         # Train the model
         self.model.fit(features, labels)
-        self.is_trained = True  # Mark the model as trained
