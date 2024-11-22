@@ -1,6 +1,6 @@
 # Trading Bot Project
 
-This project is a trading bot that uses various trading strategies to make buy and sell decisions based on cryptocurrency data.
+This project is a trading bot that uses various trading strategies to make buy and sell decisions based on cryptocurrency data with multiple ML techniques. It is designed to enhance design pattern usage, implementing **Observer, Strategy, Template Method, and Singleton** patterns to create a modular, maintainable, and extensible architecture.
 
 ## Table of Contents
 
