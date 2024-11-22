@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from Utils.data_loader import download_crypto_data
-from Indicators.indicator_calculator import calculate_indicators
+
 from Trading.trading_bot import TradingBot
 from Observer import VisualizationObserver
 from Observer import LoggingObserver
@@ -13,20 +12,20 @@ class TradingBotApp:
         self.root.title("Crypto Trading Bot")
         
         # Styling
-        self.root.config(bg="#2c3e50")  # Dark background for that techy look
+        self.root.config(bg="#2c3e50")
         self.font_style = ("Arial", 12)
         self.header_font = ("Arial", 14, "bold")
         self.button_style = {"width": 20, "relief": "raised", "bd": 2}
         
         # Apply styles for ttk widgets
         style = ttk.Style()
-        style.configure("TFrame", background="#2c3e50")  # Dark background for frames
+        style.configure("TFrame", background="#2c3e50")
         style.configure("TButton", background="#f39c12", foreground="black", font=("Arial", 12))
         style.configure("TLabel", background="#2c3e50", foreground="white", font=("Arial", 12))
         style.configure("TEntry", background="#34495e", foreground="black", font=("Arial", 12), padding=5)
 
         # Initial balance state
-        self.current_balance = 10000  # Default initial balance
+        self.current_balance = 10000
         
         # Main Frame
         main_frame = ttk.Frame(self.root, style="TFrame")
@@ -94,7 +93,7 @@ class TradingBotApp:
             return
         
         try:
-            # Step 3: Initialize trading bot and observers
+            # Step 1: Initialize trading bot and observers
             trading_bot = TradingBot(symbol)
             visualizer = VisualizationObserver()
             logging_observer = LoggingObserver()
@@ -102,7 +101,7 @@ class TradingBotApp:
             trading_bot.register_observer(visualizer)
             trading_bot.register_observer(logging_observer)
             
-            # Step 4: Simulate trading
+            # Step 2: Simulate trading
             self.output_label.config(text="Trading...")
             self.root.update()
             final_report = trading_bot.simulate_trading(self.current_balance, stop_loss,interval)
@@ -111,7 +110,7 @@ class TradingBotApp:
             self.current_balance = float(final_report.split(",")[0].split(":")[1].strip("$"))
             self.balance_label.config(text=f"${self.current_balance}")
             
-            # Step 5: Display the final report
+            # Step 3: Display the final report
             self.output_label.config(text=f"Trading Complete!\n{final_report}")
             messagebox.showinfo("Trading Complete", final_report)
         except Exception as e:

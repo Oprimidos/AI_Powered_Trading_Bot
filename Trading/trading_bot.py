@@ -1,6 +1,5 @@
 import asyncio
 import time
-import pandas as pd
 import os
 from Indicators.indicator_calculator import calculate_indicators
 from Strategies import *
@@ -12,7 +11,7 @@ class TradingBot(Subject):
     def __init__(self, coin_symbol):
         self.strategy = None
         self.observers = []
-        self.coin_symbol = coin_symbol  # Track which coin is being traded
+        self.coin_symbol = coin_symbol
         self.df = None
         self.api_key = os.getenv("BINANCE_API_KEY")
         self.api_secret = os.getenv("BINANCE_API_SECRET")
@@ -26,10 +25,10 @@ class TradingBot(Subject):
         return df
 
     def set_coin_symbol(self, coin_symbol):
-        self.coin_symbol = coin_symbol  # Set the coin symbol if needed
+        self.coin_symbol = coin_symbol
 
     def get_coin_symbol(self):
-        return self.coin_symbol  # Get the current coin symbol
+        return self.coin_symbol
 
     def register_observer(self, observer):
         self.observers.append(observer)

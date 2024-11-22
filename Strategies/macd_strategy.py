@@ -21,7 +21,6 @@ class MACDStrategy(TradingStrategy):
 
     def label_logic(self, row):
         """Labeling logic specific to RSI strategy."""
-        # Print the row to see its structure (you can remove this after debugging)
 
         # Convert the row (Series) to a DataFrame to apply rolling()
         row_df = pd.DataFrame([row])

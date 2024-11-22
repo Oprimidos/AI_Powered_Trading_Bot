@@ -1,5 +1,4 @@
 from .strategy_interface import TradingStrategy
-import pandas as pd
 
 class DefaultStrategy(TradingStrategy):
     def __init__(self, stop_loss, smoothing_period=14):

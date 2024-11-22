@@ -30,7 +30,7 @@ class TradingStrategy(ABC):
         This is implemented in the strategy class.
         """
         labels = []
-        for index, row in df.iterrows():
+        for row in df.iterrows():
             labels.append(label_logic(row))  # Apply the strategy's labeling logic
         df['Action'] = labels
         return df
