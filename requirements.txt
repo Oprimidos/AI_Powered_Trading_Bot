@@ -1,0 +1,5 @@
+pandas
+matplotlib
+python-binance
+pandas_ta
+scikit-learn

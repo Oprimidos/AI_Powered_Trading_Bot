@@ -1,0 +1,1 @@
+from .indicator_calculator import calculate_indicators
