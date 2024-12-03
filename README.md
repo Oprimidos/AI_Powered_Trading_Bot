@@ -82,3 +82,17 @@ The bot currently supports the following strategies:
 -  **RSI Strategy**: Relative Strength Index
 -  **ADX Strategy**: Average Directional Index
 -  **Default Strategy**: Default Strategy For Holding If No Strategies Above Are Met
+
+## Screenshots
+
+![WhatsApp Görsel 2024-12-04 saat 00 06 29_fc801c48](https://github.com/user-attachments/assets/987695bc-64c1-40b4-8d53-46c4e4f4e0d9)
+
+![WhatsApp Görsel 2024-12-04 saat 00 06 53_aea1de3c](https://github.com/user-attachments/assets/189a05a5-a491-4f64-931c-75c725f28726)
+
+![WhatsApp Görsel 2024-12-04 saat 00 12 23_a721482c](https://github.com/user-attachments/assets/79c74cba-9f8d-44ed-a710-99be3f27f24e)
+
+![WhatsApp Görsel 2024-12-04 saat 00 08 11_4f2a7641](https://github.com/user-attachments/assets/029a60f6-c5e9-4821-ac3f-e31e9e8f7123)
+
+
+
+
