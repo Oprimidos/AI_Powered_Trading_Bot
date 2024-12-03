@@ -1,1 +1,1 @@
-from .data_loader import download_crypto_data
+from .data_loader import DataLoader

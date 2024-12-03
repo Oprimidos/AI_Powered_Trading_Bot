@@ -1,1 +1,1 @@
-from .indicator_calculator import calculate_indicators
+from .indicator_calculator import IndicatorCalculator

@@ -5,30 +5,33 @@ class RSIStrategy(TradingStrategy):
     def __init__(self, stop_loss, smoothing_period=14):
         super().__init__(stop_loss, smoothing_period)
 
-    def decide_action(self, row, df):
-        """Train the model on the updated data and predict the action for the given row."""
-        # Train the model on the updated data
-        self.train_model(df, ['rsi', 'adx', 'macd', 'Close', 'Volume'], self.label_logic)
-        
-        # Extract features for prediction
-        features = self._get_features(row, ['rsi', 'adx', 'macd', 'Close', 'Volume'])
-        
-        # Predict and return the action (Buy, Sell, Hold)
-        prediction = self.model.predict(features)[0]
-        print(f"Predicted action: {prediction}")
-        print("Dataframe tail:", df.tail())
-        return prediction
-
     def label_logic(self, row):
-        """Labeling logic specific to RSI strategy."""
-        # Apply smoothing to RSI
-        row_df = pd.DataFrame([row])
+        """Labeling logic for RSI strategy."""
+        rsi = row['rsi']
+        adx = row['adx']
+        volume = row['Volume']
 
+        # Trending Market (ADX > 25)
+        if adx > 25:
+            if rsi < 30:  # Strongly oversold
+                return "Buy"
+            elif rsi > 70:  # Strongly overbought
+                return "Sell"
 
-        smoothed_rsi = row_df['rsi'].rolling(window=self.smoothing_period).mean().iloc[-1]
+        # Range-Bound Market (ADX < 20)
+        elif adx < 20:
+            if rsi < 35:  # Adjusted oversold threshold
+                return "Buy"
+            elif rsi > 65:  # Adjusted overbought threshold
+                return "Sell"
 
-        if smoothed_rsi < 30:
-            return "Buy"
-        elif smoothed_rsi > 70:
-            return "Sell"
+        # Volume Confirmation (Optional: avoid low-liquidity signals)
+        if volume < 10:  # Example threshold, adjust based on data
+            return "Hold"
+
+        # Default case
         return "Hold"
+
+    def feature_columns(self):
+        """Define the feature columns for the RSI strategy."""
+        return ['rsi', 'adx', 'macd', 'Close', 'Volume']

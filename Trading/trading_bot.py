@@ -1,12 +1,10 @@
 import asyncio
 import time
 import os
-from Indicators.indicator_calculator import calculate_indicators
+from Indicators import IndicatorCalculator
 from Strategies import *
 from Observer import Subject
-from Utils.data_loader import download_crypto_data
-from Utils.data_loader import download_crypto_data_interval
-
+from Utils import DataLoader
 class TradingBot(Subject):
     """
     A trading bot implementation that uses strategies to make buy/sell/hold decisions.
@@ -23,21 +21,24 @@ class TradingBot(Subject):
         self.df = None  # Dataframe to hold historical data
         self.api_key = os.getenv("BINANCE_API_KEY")  # Binance API Key from environment
         self.api_secret = os.getenv("BINANCE_API_SECRET")  # Binance API Secret from environment
+        self.indicator_calculator = IndicatorCalculator()  # Indicator calculator object
+        self.data_loader = DataLoader()  # Data loader objectt
 
     def get_latest_data(self):
         """
         Fetch the latest data for the selected cryptocurrency symbol using asyncio.
         """
-        df = asyncio.run(download_crypto_data(self.coin_symbol))
+        df = asyncio.run(self.data_loader.download_crypto_data(self.coin_symbol))
         self.df = df
 
     def get_interval_data(self):
         """
-        Fetch historical data for the selected interval.
+        Fetch the historical data for the selected cryptocurrency symbol using the REST
+        API and return it as a DataFrame.
         """
-        df = download_crypto_data_interval(self.api_key, self.api_secret, self.coin_symbol)
+        df = self.data_loader.download_crypto_data_interval(self.api_key, self.api_secret, self.coin_symbol)
         return df
-
+    
     def set_coin_symbol(self, coin_symbol):
         """
         Update the cryptocurrency symbol to trade.
@@ -80,7 +81,7 @@ class TradingBot(Subject):
         Execute the trade action based on the current strategy.
         """
         if self.strategy:
-            return self.strategy.decide_action(row, df)
+            return self.strategy.execute_strategy(row,df)
 
     def evaluate_strategies(self, row, stop_loss, historical_data):
         """
@@ -128,30 +129,39 @@ class TradingBot(Subject):
         position = 0  # Current trading position (amount of cryptocurrency held)
         entry_price = 0  # Entry price for the trade
         trades = []  # Record of trades performed during the simulation
+        first_trade = True  # Flag to ensure the first action is a "Buy"
 
         start_time = time.time()  # Record the start time of the simulation
 
         while True:
             # Calculate the elapsed time
             elapsed_time = time.time() - start_time
-            
+
             # Step 1: Fetch the latest market data
             self.get_latest_data()
             print("Acquired Data")
-            
+
             # Step 2: Get the latest row and calculate indicators
             row = self.df.iloc[-1]
             df = self.get_interval_data()
             df.loc[len(df)] = row
-            df = calculate_indicators(df)
+            df = self.indicator_calculator.calculate_indicators(df)
             print("Calculated Indicators")
 
             # Step 3: Evaluate and change strategy dynamically
             row = df.iloc[-1]
             self.change_strategy(row, stop_loss, df)
-            
+
             # Step 4: Take action based on the strategy
-            action = self.trade(row, df)
+            if first_trade:
+                # Ensure the first trade is a "Buy"
+                action = "Buy"
+                print("First trade, Buying...")
+                first_trade = False
+            else:
+                # Follow the strategy after the first trade
+                action = self.trade(row, df)
+
             if action == "Buy":
                 if position == 0:
                     # Open a new position
@@ -174,15 +184,7 @@ class TradingBot(Subject):
                 else:
                     print("Could't sell, Current Strategy: ", self.strategy.__class__.__name__)
             elif action == "Hold":
-                if position == 0:
-                    # Open a new position in hold state
-                    entry_price = row['Close']
-                    position = balance / entry_price
-                    trades.append(("BUY", entry_price, balance))
-                    print(f"Bought {self.coin_symbol} (Hold triggered buy), Current balance is: {balance}, Current Strategy: {self.strategy.__class__.__name__}")
-                    self.notify_observers(f"Bought {self.coin_symbol}, Current balance is: {balance}")
-                else:
-                    print("Holding, Current Strategy: ", self.strategy.__class__.__name__)
+                print("Holding, Current Strategy: ", self.strategy.__class__.__name__)
 
             # Step 5: Stop the simulation after the specified interval
             if elapsed_time > interval:
