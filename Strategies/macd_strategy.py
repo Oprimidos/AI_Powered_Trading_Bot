@@ -1,8 +1,8 @@
 from .strategy_interface import TradingStrategy
 
 class MACDStrategy(TradingStrategy):
-    def __init__(self, stop_loss, smoothing_period=14):
-        super().__init__(stop_loss, smoothing_period)
+    def __init__(self, stop_loss):
+        super().__init__(stop_loss)
 
     def label_logic(self, row):
         """Labeling logic for MACD strategy."""

@@ -3,12 +3,19 @@ import pandas as pd
 
 class IndicatorCalculator:
     
-    def __init__(self):
-        pass
+    def __init__(self, rsi_length=14, macd_fast=12, macd_slow=26, macd_signal=9, adx_length=14):
+        self.rsi_length = rsi_length
+        self.macd_fast = macd_fast
+        self.macd_slow = macd_slow
+        self.macd_signal = macd_signal
+        self.adx_length = adx_length
+
 
     def calculate_indicators(self,df):
         # Calculate RSI
         df['rsi'] = ta.rsi(df['Close'], length=14)
+        df['short_term_ma'] = df['Close'].rolling(window=14).mean()
+        df['long_term_ma'] = df['Close'].rolling(window=2 * 14).mean()
 
         # Calculate MACD Histogram
         macd = ta.macd(df['Close'])

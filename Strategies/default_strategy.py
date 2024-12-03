@@ -1,13 +1,14 @@
 from .strategy_interface import TradingStrategy
+import pandas as pd
 
 class DefaultStrategy(TradingStrategy):
-    def __init__(self, stop_loss, smoothing_period=14):
-        super().__init__(stop_loss, smoothing_period)
+    def __init__(self, stop_loss):
+        super().__init__(stop_loss)
 
     def label_logic(self, row):
         """Labeling logic for the Default strategy."""
-        short_term_ma = row['Close'].rolling(window=self.smoothing_period).mean().iloc[-1]
-        long_term_ma = row['Close'].rolling(window=2 * self.smoothing_period).mean().iloc[-1]
+        short_term_ma = row['short_term_ma']
+        long_term_ma = row['long_term_ma']
 
         # Determine the trend
         if short_term_ma > long_term_ma:

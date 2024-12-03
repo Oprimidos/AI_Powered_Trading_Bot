@@ -83,3 +83,30 @@ class DataLoader:
         # Return the DataFrame with the collected historical data
         return data
     
+    def download_crypto_data_interval_backtest(self,api_key, api_secret, symbol, interval, check_date):
+        client = Client(api_key, api_secret)  # Initialize the Binance client with API credentials
+        
+        # Fetch historical kline data using the specified interval and symbol
+        klines = client.get_historical_klines(symbol, interval, check_date)
+            
+        data = []  # Initialize an empty list to hold the data rows
+        for kline in klines:
+            # Extract and process each kline entry
+            timestamp = pd.to_datetime(kline[0], unit='ms')  # Convert the timestamp to a datetime object
+            timestamp = timestamp.tz_localize("UTC").tz_convert("Europe/Istanbul")  # Convert timezone to Istanbul
+            timestamp = timestamp.strftime("%Y-%m-%d %H:%M:%S")  # Format timestamp as string
+            data.append({
+                "Timestamp": timestamp,
+                "Open": float(kline[1]),  # Open price of the candle
+                "High": float(kline[2]),  # High price of the candle
+                "Low": float(kline[3]),  # Low price of the candle
+                "Close": float(kline[4]),  # Close price of the candle
+                "Volume": float(kline[5])  # Volume of trades during the candle
+            })
+            
+        # Convert the list of rows to a DataFrame
+        data = pd.DataFrame(data)
+            
+        # Return the DataFrame with the collected historical data
+        return data
+    

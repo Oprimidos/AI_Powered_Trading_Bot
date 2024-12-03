@@ -1,6 +1,8 @@
 import asyncio
 import time
 import os
+
+import pandas as pd
 from Indicators import IndicatorCalculator
 from Strategies import *
 from Observer import Subject
@@ -39,6 +41,14 @@ class TradingBot(Subject):
         df = self.data_loader.download_crypto_data_interval(self.api_key, self.api_secret, self.coin_symbol)
         return df
     
+    def get_interval_data_backtest(self, interval, check_date):
+        """
+        Fetch the historical data for the selected cryptocurrency symbol using the REST
+        API and return it as a DataFrame.
+        """
+        df = self.data_loader.download_crypto_data_interval_backtest(self.api_key, self.api_secret, self.coin_symbol, interval, check_date)
+        return df
+
     def set_coin_symbol(self, coin_symbol):
         """
         Update the cryptocurrency symbol to trade.
@@ -80,13 +90,13 @@ class TradingBot(Subject):
         """
         Execute the trade action based on the current strategy.
         """
-        if self.strategy:
-            return self.strategy.execute_strategy(row,df)
+        return self.strategy.execute_strategy(row,df)
 
     def evaluate_strategies(self, row, stop_loss, historical_data):
         """
         Dynamically evaluate and select the best strategy based on market conditions and historical data.
         """
+
         # Calculate market volatility
         volatility = historical_data['Close'].std()
         
@@ -151,7 +161,7 @@ class TradingBot(Subject):
             # Step 3: Evaluate and change strategy dynamically
             row = df.iloc[-1]
             self.change_strategy(row, stop_loss, df)
-
+            print("Data we are working with: ", df.tail())
             # Step 4: Take action based on the strategy
             if first_trade:
                 # Ensure the first trade is a "Buy"
@@ -193,4 +203,67 @@ class TradingBot(Subject):
         # Notify observers of the simulation's completion
         elapsed_time = time.time() - start_time
         self.notify_observers("Simulation complete")
-        return f"Remaining balance: {balance}$, Trading count: {len(trades)}, Profit/Loss: {balance - initial_balance}$"
+        return balance
+
+
+
+    def backtest_trading(self, initial_balance, stop_loss, interval, check_date):
+        """
+        Backtest trading based on the selected strategy and notify observers about the process.
+        """
+        balance = initial_balance
+        position = 0
+        entry_price = 0
+        trades = []
+        first_trade = True
+        print("Backtesting started...")
+        print("Interval: ", interval)   
+        print("Check Date: ", check_date)
+        historical_df = self.get_interval_data_backtest(interval,check_date)
+                    
+        # Calculate indicators
+        df_with_indicators = self.indicator_calculator.calculate_indicators(historical_df)
+            
+        for index, row in df_with_indicators.iterrows():
+
+            # Evaluate and change strategy dynamically
+            self.change_strategy(row, stop_loss, df_with_indicators)
+            print("Data we are working with: ", pd.DataFrame(row.head()))
+
+            if first_trade: 
+                # Ensure the first trade is a "Buy"
+                action = "Buy"
+                first_trade = False
+            else:
+                # Follow the strategy after the first trade
+                action = self.trade(row, df_with_indicators)
+
+            if action == "Buy":
+                if position == 0:
+                    # Open a new position
+                    entry_price = row['Close']
+                    position = balance / entry_price
+                    trades.append(("BUY", entry_price, balance))
+                    print(f"Bought {self.coin_symbol}, Current balance is: {balance}, Current Strategy: {self.strategy.__class__.__name__}")
+                    self.notify_observers(f"Bought {self.coin_symbol}, Current balance is: {balance}, Current Strategy: {self.strategy.__class__.__name__}")
+                else:
+                    print("Couldn't buy, Current Strategy: ", self.strategy.__class__.__name__)
+            elif action == "Sell":
+                if position > 0:
+                    # Close the existing position
+                    sell_price = row['Close']
+                    balance = position * sell_price
+                    trades.append(("SELL", sell_price, balance))
+                    print(f"Sold {self.coin_symbol}, Current balance is: {balance}, Current Strategy: {self.strategy.__class__.__name__}")
+                    position = 0
+                    self.notify_observers(f"Sold {self.coin_symbol}, Current balance is: {balance}, Current Strategy: {self.strategy.__class__.__name__}")
+                else:
+                    print("Couldn't sell, Current Strategy: ", self.strategy.__class__.__name__)
+            elif action == "Hold":
+                print("Holding, Current Strategy: ", self.strategy.__class__.__name__)
+
+        # Notify observers of the backtest's completion
+        self.notify_observers("Simulation complete")
+        return balance
+
+        

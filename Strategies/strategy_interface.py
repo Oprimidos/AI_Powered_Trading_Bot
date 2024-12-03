@@ -3,13 +3,11 @@ from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 
 class TradingStrategy(ABC):
-    def __init__(self, stop_loss, smoothing_period=14):
+    def __init__(self, stop_loss):
         """
-        Initialize the trading strategy with stop_loss and smoothing_period.
-        The smoothing_period is used for smoothing indicators like macd, rsi, etc.
+        Initialize the trading strategy with stop_loss and model.
         """
         self.stop_loss = stop_loss  # Shared functionality, for example, stop loss
-        self.smoothing_period = smoothing_period  # Smoothing period for indicators
         self.model = RandomForestClassifier(class_weight='balanced')  # Common model for all strategies
 
     def execute_strategy(self, row, df):

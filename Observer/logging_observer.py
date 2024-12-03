@@ -27,7 +27,7 @@ class LoggingObserver(Observer):
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         with open(self.log_file, "a") as f:
             if message == "Simulation complete":
-                f.write(f"[{timestamp}], Simulation complete\n")
+                f.write(f"[{timestamp}] Simulation complete\n")
                 f.write("\n")
             else:
                 f.write(f"[{timestamp}] {message}\n")
