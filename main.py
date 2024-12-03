@@ -193,5 +193,7 @@ class TradingBotApp:
 
 
 root = tk.Tk()
+icon = tk.PhotoImage(file="icon.png")
+root.iconphoto(False, icon)
 app = TradingBotApp(root)
 root.mainloop()
