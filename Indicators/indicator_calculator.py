@@ -24,7 +24,7 @@ class IndicatorCalculator:
         df['rsi'] = ta.rsi(df['Close'], length=self.rsi_length)
 
         # Moving Averages
-        df['short_term_ma'] = df['Close'].rolling(window=self.rsi_length).mean()
+        df['short_term_ma'] = df['Close']. rolling(window=self.rsi_length).mean()
         df['long_term_ma'] = df['Close'].rolling(window=2 * self.rsi_length).mean()
 
         # MACD
@@ -41,6 +41,12 @@ class IndicatorCalculator:
         stochastic = ta.stoch(df['High'], df['Low'], df['Close'], fast_k=self.stochastic_k, slow_d=self.stochastic_d)
         df['stoch_k'] = stochastic['STOCHk_14_3_3']
         df['stoch_d'] = stochastic['STOCHd_14_3_3']
+
+        # Bollinger Bands
+        bollinger = ta.bbands(df['Close'], length=self.rsi_length, std=2)
+        df['bollinger_hband'] = bollinger['BBL_14_2.0']
+        df['bollinger_lband'] = bollinger['BBU_14_2.0']
+        df['bollinger_mband'] = bollinger['BBM_14_2.0']
 
         df.dropna(inplace=True)
         return df
